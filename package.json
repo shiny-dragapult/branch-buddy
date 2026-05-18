@@ -2,8 +2,9 @@
     "name": "branch-buddy",
     "displayName": "Branch Buddy",
     "description": "Turn a VS Code window to a custom color when any other open VS Code instance is on a different git branch.",
-    "version": "1.0.0",
-    "publisher": "donnie",
+    "version": "1.0.1",
+    "publisher": "ShaneDrag",
+    "icon": "logo/extension-logo.png",
     "license": "MIT",
     "repository": {
         "type": "git",

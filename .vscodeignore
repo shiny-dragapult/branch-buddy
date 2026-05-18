@@ -21,3 +21,4 @@ vitest.config.ts
 **/*.map
 **/*.ts
 !out/**
+branch-buddy-logo-original.png
