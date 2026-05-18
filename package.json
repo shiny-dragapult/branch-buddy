@@ -1,0 +1,138 @@
+{
+    "name": "branch-buddy",
+    "displayName": "Branch Buddy",
+    "description": "Turn a VS Code window to a custom color when any other open VS Code instance is on a different git branch.",
+    "version": "1.0.0",
+    "publisher": "donnie",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/shiny-dragapult/branch-buddy.git"
+    },
+    "bugs": {
+        "url": "https://github.com/shiny-dragapult/branch-buddy/issues"
+    },
+    "homepage": "https://github.com/shiny-dragapult/branch-buddy#readme",
+    "categories": [
+        "Other"
+    ],
+    "keywords": [
+        "branch",
+        "git",
+        "workspace",
+        "status bar",
+        "multi-root",
+        "worktree"
+    ],
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "main": "./out/extension.js",
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "extensionDependencies": [
+        "vscode.git"
+    ],
+    "contributes": {
+        "commands": [
+            {
+                "command": "branchBuddy.refresh",
+                "title": "Branch Buddy: Refresh now"
+            },
+            {
+                "command": "branchBuddy.showStatus",
+                "title": "Branch Buddy: Show status of all instances"
+            },
+            {
+                "command": "branchBuddy.setGroup",
+                "title": "Branch Buddy: Set group for this workspace"
+            }
+        ],
+        "configuration": {
+            "title": "Branch Buddy",
+            "properties": {
+                "branchBuddy.group": {
+                    "type": "string",
+                    "default": "",
+                    "scope": "resource",
+                    "description": "Project group identifier. Only VS Code instances that share the same non-empty group are compared against each other. Set this in workspace settings for each repo that belongs to the same project (e.g. \"acme-app\" in both the frontend and backend repos). When empty, Branch Sync is inactive for this window."
+                },
+                "branchBuddy.color": {
+                    "type": "string",
+                    "default": "#c41e3a",
+                    "description": "Background color used for the title/status/activity bar when a branch mismatch is detected."
+                },
+                "branchBuddy.foreground": {
+                    "type": "string",
+                    "default": "#ffffff",
+                    "description": "Foreground color used alongside the mismatch alert color."
+                },
+                "branchBuddy.groupColor": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Foreground color for the group name shown in the status bar (CSS color string, e.g. \"#7aa2f7\"). Leave empty to inherit the theme's default status bar color."
+                },
+                "branchBuddy.trackingMode": {
+                    "type": "string",
+                    "default": "firstWorkspaceFolder",
+                    "enum": [
+                        "firstWorkspaceFolder",
+                        "allWorkspaceFolders"
+                    ],
+                    "scope": "window",
+                    "markdownEnumDescriptions": [
+                        "Track only the first workspace folder. This preserves the original one-entry-per-VS-Code-window behavior.",
+                        "Track every workspace folder as its own registry entry. Use this for multi-root workspaces where projects in the same sync group should be compared inside the same VS Code window too."
+                    ],
+                    "description": "Controls which repositories Branch Sync tracks in a VS Code window."
+                },
+                "branchBuddy.heartbeatMs": {
+                    "type": "number",
+                    "default": 5000,
+                    "description": "How often (ms) this instance updates its entry in the shared registry."
+                },
+                "branchBuddy.staleMs": {
+                    "type": "number",
+                    "default": 30000,
+                    "description": "Registry entries older than this (ms) are treated as dead instances and ignored."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "compile": "tsc -p .",
+        "compile:integration": "tsc -p tsconfig.integration.json",
+        "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" \"tests-integration/**/*.ts\" \"*.ts\"",
+        "watch": "tsc -p . -w",
+        "test": "vitest run --config vitest.config.ts",
+        "test:watch": "vitest --config vitest.config.ts",
+        "fixture:integration": "node tests-integration/setup-fixture.js",
+        "prepare:integration": "npm run fixture:integration && npm run compile && npm run compile:integration",
+        "test:integration": "npm run prepare:integration && vscode-test",
+        "coverage:unit": "vitest run --config vitest.config.ts --coverage && npm run coverage:copy:unit",
+        "coverage:copy:unit": "node -e \"const fs=require('fs');if(!fs.existsSync('coverage/unit')){console.log('[coverage] coverage/unit not present, skipping copy');process.exit(0);}if(!fs.existsSync('/coverage-out'))fs.mkdirSync('/coverage-out',{recursive:true});fs.rmSync('/coverage-out/unit',{recursive:true,force:true});fs.cpSync('coverage/unit','/coverage-out/unit',{recursive:true});console.log('[coverage] copied unit report -> /coverage-out/unit/ (on host: ./coverage/unit/)');\"",
+        "coverage:integration": "npm run prepare:integration && vscode-test --coverage --coverage-output coverage/integration && npm run coverage:copy:integration",
+        "coverage:copy:integration": "node -e \"const fs=require('fs');if(!fs.existsSync('coverage/integration')){console.log('[coverage] coverage/integration not present, skipping copy');process.exit(0);}if(!fs.existsSync('/coverage-out'))fs.mkdirSync('/coverage-out',{recursive:true});fs.rmSync('/coverage-out/integration',{recursive:true,force:true});fs.cpSync('coverage/integration','/coverage-out/integration',{recursive:true});console.log('[coverage] copied integration report -> /coverage-out/integration/ (on host: ./coverage/integration/)');\"",
+        "coverage": "npm run coverage:unit && npm run coverage:integration",
+        "typecheck": "tsc -p tsconfig.test.json",
+        "vscode:prepublish": "tsc -p ."
+    },
+    "overrides": {
+        "serialize-javascript": "7.0.5"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@types/mocha": "^10.0.6",
+        "@types/node": "^20.11.0",
+        "@types/vscode": "^1.80.0",
+        "@vitest/coverage-v8": "^4.1.6",
+        "@vscode/test-cli": "^0.0.10",
+        "@vscode/test-electron": "^2.4.1",
+        "eslint": "^10.3.0",
+        "globals": "^17.6.0",
+        "typescript": "^5.4.0",
+        "typescript-eslint": "^8.59.3",
+        "vitest": "^4.1.6"
+    }
+}

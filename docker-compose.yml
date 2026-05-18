@@ -1,0 +1,67 @@
+name: branch-buddy
+
+services:
+    app:
+        image: branch-buddy-app:${ENV_TAG:-default}
+        build:
+            context: .
+            dockerfile: ./app/Dockerfile
+        environment:
+            TZ: Europe/Rome
+        init: true
+        volumes:
+            - ./src:/home/app/src:ro
+            - ./tests:/home/app/tests:ro
+            - ./tests-integration:/home/app/tests-integration:ro
+            - ./tsconfig.json:/home/app/tsconfig.json:ro
+            - ./tsconfig.test.json:/home/app/tsconfig.test.json:ro
+            - ./tsconfig.integration.json:/home/app/tsconfig.integration.json:ro
+            - ./vitest.config.ts:/home/app/vitest.config.ts:ro
+            - ./.vscode-test.mjs:/home/app/.vscode-test.mjs:ro
+            - ./package.json:/home/app/package.json:ro
+            - ./out:/home/app/out
+            - ./out-test:/home/app/out-test
+            - ./coverage:/coverage-out
+        develop:
+            watch:
+                - path: ./src
+                  target: /home/app/src
+                  action: sync
+                - path: ./tests
+                  target: /home/app/tests
+                  action: sync
+                - path: ./package.json
+                  action: rebuild
+                - path: ./package-lock.json
+                  action: rebuild
+
+    # Separate service for `@vscode/test-cli` integration tests. Based on a
+    # glibc image (Debian slim) so it can actually run the downloaded VS Code
+    # Electron binary, with `xvfb` providing a headless display.
+    integration:
+        image: branch-buddy-integration:${ENV_TAG:-default}
+        build:
+            context: .
+            dockerfile: ./app/Dockerfile.integration
+        environment:
+            TZ: Europe/Rome
+        init: true
+        entrypoint: ["xvfb-run", "-a"]
+        command: ["npm", "run", "test:integration"]
+        volumes:
+            - ./src:/home/app/src:ro
+            - ./tests:/home/app/tests:ro
+            - ./tests-integration:/home/app/tests-integration
+            - ./tsconfig.json:/home/app/tsconfig.json:ro
+            - ./tsconfig.test.json:/home/app/tsconfig.test.json:ro
+            - ./tsconfig.integration.json:/home/app/tsconfig.integration.json:ro
+            - ./vitest.config.ts:/home/app/vitest.config.ts:ro
+            - ./.vscode-test.mjs:/home/app/.vscode-test.mjs:ro
+            - ./package.json:/home/app/package.json:ro
+            - ./out:/home/app/out
+            - ./out-test:/home/app/out-test
+            - ./coverage:/coverage-out
+            - vscode-test-cache:/home/app/.vscode-test
+
+volumes:
+    vscode-test-cache:

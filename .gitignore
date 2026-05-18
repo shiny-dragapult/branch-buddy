@@ -1,0 +1,12 @@
+node_modules
+out
+out-test
+.vscode-test
+coverage
+coverage-scratch
+vitest.config.js
+vitest.config.js.map
+tests-integration/fixtures/
+*.vsix
+.DS_Store
+.npm/

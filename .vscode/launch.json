@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Extension Host A",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--new-window",
+        "${workspaceFolder}/test-workspace-a"
+      ]
+    },
+    {
+      "name": "Extension Host B",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--new-window",
+        "${workspaceFolder}/test-workspace-b"
+      ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch both Extension Hosts",
+      "configurations": [
+        "Extension Host A",
+        "Extension Host B"
+      ]
+    }
+  ]
+}
